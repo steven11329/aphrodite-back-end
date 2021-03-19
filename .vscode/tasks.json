@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "babel watch",
+      "type": "process",
+      "command": "npx",
+      "args": ["babel", "src", "--out-dir", "dist", "-w", "-s"],
+      "suppressTaskName": true,
+      "isTestCommand": true,
+      "isBackground": true
+    }
+  ]
+}
