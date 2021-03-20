@@ -314,7 +314,7 @@ export default class PTTCrawler extends Crawler {
           const result = await this.isLinkUnavaliable(link);
 
           if (!result) {
-            logger.info('Update available', title, link, result);
+            logger.info(`Update available ${title} ${link} ${result}`);
             await db.updateLinkAvailable(link, result);
           }
 
