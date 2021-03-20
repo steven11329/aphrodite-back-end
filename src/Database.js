@@ -115,6 +115,7 @@ class Database {
     const client = await this.pool.connect();
     const result = client.query(
       `SELECT title, weighted_popularity_index AS "wpi" , image_url_list[1] AS "coverImage", create_date AS "createDate" FROM post 
+      WHERE available IS NULL OR available != false
       ORDER BY weighted_popularity_index DESC, create_date DESC
       OFFSET ${skip} ROWS
       FETCH FIRST 20 ROWS ONLY;`
@@ -200,6 +201,21 @@ class Database {
     await update();
   }
 
+  /**
+   * Update table post available
+   * @param {string} link
+   * @param {boolean} bool
+   * @returns
+   */
+  async updateLinkAvailable(link, bool) {
+    if (typeof link !== 'string') throw new Error('link is not string');
+    if (typeof bool !== 'boolean') throw new Error('bool is not boolean');
+    return this.client.query(
+      `UPDATE post SET available = $1 WHERE link = $2;`,
+      [bool, link]
+    );
+  }
+
   async deletePost(id) {
     return this.client.query(`DELETE FROM post WHERE id = ${id};`);
   }
@@ -210,6 +226,23 @@ class Database {
 
   async end() {
     return Promise.all([this.pool.end(), this.client.end()]);
+  }
+
+  async getPostsCursor(platformId) {
+    const client = await this.pool.connect();
+    const sql = `SELECT title, link FROM post WHERE platform_id = $1 AND available IS NULL OR available != false;`;
+    const cursor = client.query(new Cursor(sql, [platformId]));
+
+    function close() {
+      cursor.close(() => {
+        client.release();
+      });
+    }
+
+    return {
+      cursor,
+      close,
+    };
   }
 }
 

@@ -125,3 +125,10 @@ describe('Test countReply()', () => {
     });
   });
 });
+
+describe('Test isLinkUnavaliable()', () => {
+  test('Test www.ptt.cc/bbs/Beauty/M.1616202057.A.787.html', async () => {
+    const result = await crawler.isLinkUnavaliable('www.ptt.cc/bbs/Beauty/M.1616202057.A.787.html');
+    expect(result).toBeFalsy();
+  });
+});

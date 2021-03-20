@@ -275,4 +275,59 @@ export default class PTTCrawler extends Crawler {
       total: normal + like + unlike,
     };
   }
+
+  isLinkUnavaliable(path) {
+    return new Promise((resolve, reject) => {
+      const request = https.request({
+        hostname: this.hostname,
+        path: path.replace(this.hostname, ''),
+      });
+
+      request.setHeader('Cookie', this.cookies);
+
+      request.on('response', res => {
+        resolve(res.statusCode !== 404);
+      });
+
+      request.on('error', error => {
+        reject(error);
+      });
+
+      request.end();
+    });
+  }
+
+  async disableUnlinkedPost() {
+    const db = new Database();
+    await db.connect();
+    const { cursor, close } = await db.getPostsCursor(
+      process.env.PTT_PLATFORM_ID
+    );
+
+    const update = async (err, rows) => {
+      if (err) {
+        await db.end();
+        throw err;
+      };
+      if (rows.length > 0) {
+        for (const { title, link } of rows) {
+          const result = await this.isLinkUnavaliable(link);
+
+          if (!result) {
+            logger.info('Update available', title, link, result);
+            await db.updateLinkAvailable(link, result);
+          }
+
+          await delay(500);
+        }
+        cursor.read(100, update);
+      } else {
+        close();
+        logger.info('disableUnlinkedPost() end');
+        await db.end();
+      }
+    };
+    logger.info('disableUnlinkedPost() start');
+    cursor.read(100, update);
+  }
 }

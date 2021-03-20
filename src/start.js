@@ -11,6 +11,7 @@ async function run() {
     const pttCrawler = new PTTCrawler();
     await pttCrawler.request('/bbs/Beauty/index.html');
     await pttCrawler.crawl();
+    await pttCrawler.disableUnlinkedPost();
   } catch (error) {
     logger.error(error);
   }
