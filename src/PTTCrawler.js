@@ -74,9 +74,9 @@ export default class PTTCrawler extends Crawler {
 
     let post = postsIterator.next();
 
+    logger.info('Upsert posts');
     while (!post.done) {
       if (/\[正妹|帥哥|神人\]/.test(post.value.title)) {
-        logger.info(`Upsert ${post.value.title}`);
         try {
           await db.upsertPostWithoutPopularityIndex({
             platformId: process.env.PTT_PLATFORM_ID,
@@ -143,7 +143,9 @@ export default class PTTCrawler extends Crawler {
     this.rootHtmlElement
       .querySelectorAll('#main-content > a[href]')
       .map(anchorElement => anchorElement.getAttribute('href'))
-      .filter(imageUrl => /.*(\.(jpg|png|gif|webp))$/.test(imageUrl))
+      .filter(imageUrl =>
+        /(.*imgur\.com.*)|(.*(\.(jpg|png|gif|webp))$)/.test(imageUrl)
+      )
       .forEach(imageUrl => {
         imagesUrl.push(imageUrl);
       });
@@ -308,7 +310,7 @@ export default class PTTCrawler extends Crawler {
       if (err) {
         await db.end();
         throw err;
-      };
+      }
       if (rows.length > 0) {
         for (const { title, link } of rows) {
           const result = await this.isLinkUnavaliable(link);

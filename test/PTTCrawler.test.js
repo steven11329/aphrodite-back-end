@@ -69,6 +69,31 @@ describe('Test crawImage()', () => {
       'https://i.imgur.com/S9xP9ix.jpg',
     ]);
   });
+  test('M.1615868640.A.038.html', async () => {
+    await crawler.requestByFile(
+      path.resolve(__dirname, './data/M.1615868640.A.038.html')
+    );
+    expect(crawler.crawlImage(0)).toEqual([
+      'https://imgur.com/DgARLOI',
+      'https://imgur.com/CrOWBO3',
+      'https://imgur.com/ZPCwniu',
+      'https://imgur.com/FC6nWHR',
+      'https://imgur.com/fDpuGDl',
+      'https://imgur.com/PisU5Qr',
+      'https://imgur.com/Yy7OO6K',
+      'https://imgur.com/Q03UsD1',
+      'https://imgur.com/hqDEMT9',
+      'https://imgur.com/yaVspX2',
+      'https://imgur.com/e1Zv0As',
+      'https://imgur.com/g6jsyDf',
+      'https://imgur.com/bJYWZR2',
+      'https://imgur.com/xvrKn82',
+      'https://imgur.com/KEAVfvw',
+      'https://imgur.com/nsWmiJB',
+      'https://imgur.com/pftyQsW',
+      'https://imgur.com/KK09zSN',
+    ]);
+  });
 });
 
 describe('Test expand()', () => {
@@ -128,7 +153,9 @@ describe('Test countReply()', () => {
 
 describe('Test isLinkUnavaliable()', () => {
   test('Test www.ptt.cc/bbs/Beauty/M.1616202057.A.787.html', async () => {
-    const result = await crawler.isLinkUnavaliable('www.ptt.cc/bbs/Beauty/M.1616202057.A.787.html');
+    const result = await crawler.isLinkUnavaliable(
+      'www.ptt.cc/bbs/Beauty/M.1616202057.A.787.html'
+    );
     expect(result).toBeFalsy();
   });
 });

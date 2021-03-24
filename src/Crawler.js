@@ -11,17 +11,17 @@ export default class Crawler {
   }
 
   // eslint-disable-next-line no-unused-vars
-  request(path) {
+  async request(path) {
     return Promise.resolve(this.rootHtmlElement);
   }
 
   // eslint-disable-next-line no-unused-vars
-  requestByFile(filePath) {
+  async requestByFile(filePath) {
     return Promise.resolve(this.rootHtmlElement);
   }
 
   // eslint-disable-next-line no-unused-vars
-  requestToFile(path, filePath) {
+  async requestToFile(path, filePath) {
     return Promise.resolve(this.rootHtmlElement);
   }
 }
