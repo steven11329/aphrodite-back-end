@@ -36,8 +36,12 @@ export default class PTTCrawler extends Crawler {
     logger.info(`Request links`);
     for (let pageIndex = 0; pageIndex < links.length; pageIndex += 1) {
       await delay(500 * (pageIndex + 1));
-      await this.request(links[pageIndex]);
-      pages.push(this.rootHtmlElement);
+      try {
+        await this.request(links[pageIndex]);
+        pages.push(this.rootHtmlElement);
+      } catch (error) {
+        logger.error(error);
+      }
     }
 
     pages.forEach(htmlElement => {
