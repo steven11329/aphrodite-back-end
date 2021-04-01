@@ -179,6 +179,7 @@ class Database {
                   const pi = (c * m + data.sum * 1000) / (c + data.n);
                   const wpi =
                     (pi - m) *
+                    1000 *
                     0.98 ** differenceInCalendarDays(now, data.createDate);
                   await updateClient.query(
                     `UPDATE post SET popularity_index = $1, weighted_popularity_index = $2 WHERE id = $3;`,

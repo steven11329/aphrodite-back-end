@@ -33,9 +33,9 @@ export default class PTTCrawler extends Crawler {
     const links = this.expandPreviousPageLinks(process.env.PTT_SCAN_PAGES);
     const pages = [this.rootHtmlElement];
 
+    logger.info(`Request links`);
     for (let pageIndex = 0; pageIndex < links.length; pageIndex += 1) {
       await delay(500 * (pageIndex + 1));
-      logger.info(`request ${links[pageIndex]}`);
       await this.request(links[pageIndex]);
       pages.push(this.rootHtmlElement);
     }
