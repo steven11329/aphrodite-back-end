@@ -1,10 +1,16 @@
 import fastify from 'fastify';
+import path from 'path';
+import fastifyStatic from 'fastify-static';
+
 import { serverLogger as logger } from './util/logger';
 
 export default class App {
   constructor(db) {
     this.db = db;
     this.app = fastify();
+    this.app.register(fastifyStatic, {
+      root: path.join(__dirname, '../build'),
+    });
 
     this.app.get('/posts', async (request, reply) => {
       const { skip } = request.query;
