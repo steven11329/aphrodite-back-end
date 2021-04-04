@@ -12,7 +12,7 @@ async function start() {
   await db.connect();
   const fastify = app.getFastifyInstance();
 
-  fastify.listen(process.env.PORT, async error => {
+  fastify.listen(process.env.PORT, process.env.IP, async error => {
     if (error) {
       logger.error(error);
       process.exit(1);
