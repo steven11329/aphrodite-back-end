@@ -1,13 +1,27 @@
+import fs from 'fs';
 import fastify from 'fastify';
+import dotenv from 'dotenv';
 import path from 'path';
 import fastifyStatic from 'fastify-static';
 
 import { serverLogger as logger } from './util/logger';
 
+dotenv.config();
+
+const httpsOptions =
+  process.env.HTTPS === 'true'
+    ? {
+        key: fs.readFileSync(path.join(__dirname, '../cert/server.key')),
+        cert: fs.readFileSync(path.join(__dirname, '../cert/server.cert')),
+      }
+    : undefined;
 export default class App {
   constructor(db) {
     this.db = db;
-    this.app = fastify();
+    this.app = fastify({
+      http2: process.env.HTTPS === 'true',
+      https: httpsOptions,
+    });
     this.app.register(fastifyStatic, {
       root: path.join(__dirname, '../build'),
     });
