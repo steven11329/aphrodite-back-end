@@ -240,7 +240,12 @@ class Database {
 
   async getPostsCursor(platformId) {
     const client = await this.pool.connect();
-    const sql = `SELECT title, link FROM post WHERE platform_id = $1 AND available IS NULL OR available != false;`;
+    const sql = `
+      SELECT title, link FROM post
+      WHERE platform_id = $1 AND available IS NULL OR available != false
+      ORDER BY create_date DESC
+      FETCH FIRST 120 ROWS ONLY;
+    `;
     const cursor = client.query(new Cursor(sql, [platformId]));
 
     function close() {
