@@ -3,6 +3,7 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import path from 'path';
 import fastifyStatic from 'fastify-static';
+import fastifyCompress from 'fastify-compress';
 
 import { serverLogger as logger } from './util/logger';
 
@@ -21,6 +22,9 @@ export default class App {
     this.app = fastify({
       http2: process.env.HTTPS === 'true',
       https: httpsOptions,
+    });
+    this.app.register(fastifyCompress, {
+      encodings: ['gzip', 'deflate', 'br'],
     });
     this.app.register(fastifyStatic, {
       root: path.join(__dirname, '../build'),
