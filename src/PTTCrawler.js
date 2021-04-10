@@ -1,5 +1,6 @@
 import https from 'https';
-import { parse as dateParse, addHours } from 'date-fns';
+import { parse as dateParse } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import fs from 'fs';
 import { parse } from 'node-html-parser';
 import dotenv from 'dotenv';
@@ -129,13 +130,13 @@ export default class PTTCrawler extends Crawler {
       .forEach((content, i) => {
         if (i === 1) title = content.text;
         if (i === 2)
-          createDate = addHours(
+          createDate = zonedTimeToUtc(
             dateParse(
               content.text.replace('  ', ' '),
               'EEE MMM d HH:mm:ss yyyy',
               new Date()
             ),
-            -8
+            'Asia/Taipei'
           );
       });
 
