@@ -259,6 +259,16 @@ class Database {
       close,
     };
   }
+
+  async updateLastUpdate(platformId) {
+    const sql = `UPDATE platform SET last_update = $2 WHERE id = $1;`;
+    return this.client.query(sql, [platformId, new Date()]);
+  }
+
+  async getLastUpdate(platformId) {
+    const sql = `SELECT last_update AS "lastUpdate" FROM platform WHERE id = $1`;
+    return this.client.query(sql, [platformId]);
+  }
 }
 
 export default Database;

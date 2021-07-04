@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import App from './App';
 import Database from './Database';
-import { serverLogger as logger } from './util/logger';
+import { send } from './webhooks/discord';
 
 dotenv.config();
 
@@ -14,10 +14,9 @@ async function start() {
 
   fastify.listen(process.env.PORT, process.env.IP, async error => {
     if (error) {
-      logger.error(error);
+      send(`[Server] error: ${error.message}`);
       process.exit(1);
     }
-    logger.info('Server Started');
   });
 }
 

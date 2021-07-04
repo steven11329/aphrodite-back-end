@@ -5,8 +5,6 @@ import path from 'path';
 import fastifyStatic from 'fastify-static';
 import fastifyCompress from 'fastify-compress';
 
-import { serverLogger as logger } from './util/logger';
-
 dotenv.config();
 
 const httpsOptions =
@@ -17,6 +15,10 @@ const httpsOptions =
       }
     : undefined;
 export default class App {
+  /**
+   *
+   * @param {import('./Database').default} db
+   */
   constructor(db) {
     this.db = db;
     this.app = fastify({
@@ -39,7 +41,6 @@ export default class App {
         reply.code(404).send({
           message: error.message,
         });
-        logger.error(error);
       }
     });
 
@@ -60,7 +61,26 @@ export default class App {
         reply.code(404).send({
           message: error.message,
         });
-        logger.error(error);
+      }
+    });
+
+    this.app.get('/platform/:id/last-update', async (request, reply) => {
+      const { id } = request.params;
+      try {
+        if (id) {
+          const result = await this.db.getLastUpdate(id);
+          if (result.rowCount === 1) {
+            reply.send(result.rows[0]);
+          } else {
+            reply.code(404).send({
+              message: `id=${id} not found`,
+            });
+          }
+        }
+      } catch (error) {
+        reply.code(404).send({
+          message: error.message,
+        });
       }
     });
 
@@ -79,9 +99,7 @@ export default class App {
   }
 
   async close() {
-    logger.info('Disconnect Database');
     await this.db.end();
     await this.app.close();
-    logger.info('Server Stop');
   }
 }

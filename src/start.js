@@ -1,8 +1,6 @@
-/* eslint-disable no-unused-vars */
 import dotenv from 'dotenv';
 import PTTCrawler from './PTTCrawler';
-import Database from './Database';
-import logger from './util/logger';
+import { send } from './webhooks/discord';
 
 dotenv.config();
 
@@ -13,21 +11,8 @@ async function run() {
     await pttCrawler.crawl();
     await pttCrawler.disableUnlinkedPost();
   } catch (error) {
-    logger.error(error);
-  }
-}
-
-async function runDB() {
-  const db = new Database();
-  try {
-    await db.connect();
-    await db.updatePopularityIndex(1);
-  } catch (error) {
-    logger.error(error);
-  } finally {
-    db.end();
+    send(`[Crawler] error: ${error.message}`);
   }
 }
 
 run();
-// runDB();

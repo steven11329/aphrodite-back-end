@@ -7,7 +7,6 @@ import dotenv from 'dotenv';
 import Crawler from './Crawler';
 import delay from './util/delay';
 import Database from './Database';
-import logger from './util/logger';
 
 dotenv.config();
 
@@ -34,15 +33,12 @@ export default class PTTCrawler extends Crawler {
     const links = this.expandPreviousPageLinks(process.env.PTT_SCAN_PAGES);
     const pages = [this.rootHtmlElement];
 
-    logger.info(`Request links`);
     for (let pageIndex = 0; pageIndex < links.length; pageIndex += 1) {
       await delay(500 * (pageIndex + 1));
       try {
         await this.request(links[pageIndex]);
         pages.push(this.rootHtmlElement);
-      } catch (error) {
-        logger.error(error);
-      }
+      } catch (error) {}
     }
 
     pages.forEach(htmlElement => {
@@ -61,10 +57,7 @@ export default class PTTCrawler extends Crawler {
         (key, index) =>
           new Promise(resolve => {
             delay((index + 1) * 500)
-              .then(() => {
-                logger.info(`request ${key}`);
-                return this.crawlByUrl(key);
-              })
+              .then(() => this.crawlByUrl(key))
               .then(result => {
                 posts.set(key, { link: posts.get(key).link, ...result });
                 resolve(result);
@@ -79,7 +72,6 @@ export default class PTTCrawler extends Crawler {
 
     let post = postsIterator.next();
 
-    logger.info('Upsert posts');
     while (!post.done) {
       if (/\[正妹|帥哥|神人\]/.test(post.value.title)) {
         try {
@@ -93,18 +85,14 @@ export default class PTTCrawler extends Crawler {
             imageUrlList: post.value.imagesUrl,
             createDate: post.value.createDate,
           });
-        } catch (error) {
-          logger.error(error);
-        }
+        } catch (error) {}
       }
       post = postsIterator.next();
     }
 
-    logger.info(`Update al_of_reply`);
+    await db.updateLastUpdate(1);
     await db.updateAllOfReply(1);
-    logger.info(`Update avg_of_score`);
     await db.updateAvgOfScore(1);
-    logger.info(`Update popularity_index and weighted_popularity_index`);
     await db.updatePopularityIndex(1);
     await db.end();
   }
@@ -320,11 +308,10 @@ export default class PTTCrawler extends Crawler {
         throw err;
       }
       if (rows.length > 0) {
-        for (const { title, link } of rows) {
+        for (const { link } of rows) {
           const result = await this.isLinkUnavaliable(link);
 
           if (!result) {
-            logger.info(`Update available ${title} ${link} ${result}`);
             await db.updateLinkAvailable(link, result);
           }
 
@@ -333,11 +320,9 @@ export default class PTTCrawler extends Crawler {
         cursor.read(100, update);
       } else {
         close();
-        logger.info('disableUnlinkedPost() end');
         await db.end();
       }
     };
-    logger.info('disableUnlinkedPost() start');
     cursor.read(100, update);
   }
 }
